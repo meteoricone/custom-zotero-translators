@@ -3,7 +3,7 @@
     "zotero-plugin-translators@ericmann.de": {
       "updates": [
         {
-          "version": "1.0",
+          "version": "0.9",
           "update_link": "https://raw.githubusercontent.com/meteoricone/custom-zotero-translators/main/updates/update-test.xpi",
           "update_hash": "sha256:8517ab07281b671622f2f4bd444e6f6d56bb86ed955598b6e9a4ba3ce1fe95c4",
           "applications": {

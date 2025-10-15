@@ -4,8 +4,8 @@
       "updates": [
         {
           "version": "1.0",
-          "update_link": "https://###.xpi",
-          "update_hash": "sha256:beb9ba15fdcdce9634c8a19155c8f9b1b83a17667647ba60d314c13c6c460a54",
+          "update_link": "https://raw.githubusercontent.com/meteoricone/custom-zotero-translators/main/updates/update-test.xpi",
+          "update_hash": "sha256:8517ab07281b671622f2f4bd444e6f6d56bb86ed955598b6e9a4ba3ce1fe95c4",
           "applications": {
             "zotero": {
               "strict_min_version": "7.0",

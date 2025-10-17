@@ -1,6 +1,6 @@
 {
 	"translatorID": "d6f4842a-f42f-4e8c-9aa1-5d4833226bc4",
-	"label": "_beck-online PRIO v2025-05-09",
+	"label": "_beck-online PRIO v2025-10-17",
 	"creator": "Eric Mann (based on work by Philipp Zumstein)",
 	"target": "^https?:\\/\\/beck-online\\.beck\\.de\\/",
 	"minVersion": "5.0",
@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-05-09 11:55:11"
+	"lastUpdated": "2025-10-17 10:11:20"
 }
 
 /*
@@ -170,6 +170,7 @@ async function scrapeCommentary(doc, url) {
 	let bearbeiter = "##";
 	let kommentartitel = "##";
 
+
 	// Bearbeiter ermitteln
 	// TODO: zu Zotero übernehmen, Mglk mehrerer Bearbeiter beachten
 	bearbeiter = text(doc, ".autor");
@@ -266,6 +267,25 @@ async function scrapeCommentary(doc, url) {
 		item.encyclopediaTitle = kommentartitel;
 	};
 
+
+
+	// Zitierinfo scrapen (##todo: Auswertung der Daten)
+	let zitierinfo = doc.querySelectorAll(".citation")[0].innerHTML;
+
+	// nur zu Testzwecken aktivieren
+	//item.notes.push({note: zitierinfo});
+
+	// BeckOGK
+	let regexHrsg = />Hrsg: (\S+)</;
+	matches = zitierinfo.match(regexHrsg);
+	if (matches) {
+		let hrsg = matches[1];
+		let hrsgs = hrsg.split("/");
+		for (let i = 0; i < hrsgs.length; i++) {
+			item.creators.push(ZU.cleanAuthor(hrsgs[i], "editor", false));
+		};
+	};
+	
 
 
 

@@ -1,6 +1,6 @@
 {
 	"translatorID": "d6f4842a-f42f-4e8c-9aa1-5d4833226bc4",
-	"label": "_beck-online PRIO v2025-10-17",
+	"label": "_beck-online PRIO v2025-10-19",
 	"creator": "Eric Mann (based on work by Philipp Zumstein)",
 	"target": "^https?:\\/\\/beck-online\\.beck\\.de\\/",
 	"minVersion": "5.0",
@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-10-17 10:11:20"
+	"lastUpdated": "2025-10-19 15:10:45"
 }
 
 /*
@@ -169,10 +169,31 @@ async function scrapeCommentary(doc, url) {
 	let altauflage = false;
 	let bearbeiter = "##";
 	let kommentartitel = "##";
+	let extras = "";
+
+
+	// Website-Titel scrapen (##todo)
+	let websiteTitle = text(doc, "title");
+	websiteTitle = websiteTitle.replace(" - beck-online", "");
+	let [altKurztitel, altAbschnitt] = websiteTitle.split(" | ");
+	//item.notes.push({note: websiteTitle});
+	kurztitel = altKurztitel;
+	item.shortTitle = kurztitel;
+
+	let regexAltAbschnitt = /(.*?)(?: Rn\. .+)?$/;
+	matches = altAbschnitt.match(regexAltAbschnitt);
+	if (matches) {
+		altAbschnitt = matches[1];
+		altAbschnitt = altAbschnitt.replace(/Art\. /g, "Art\.\u00A0");
+		altAbschnitt = altAbschnitt.replace(/§ /g, "§\u00A0");
+
+	};
+	abschnitt = altAbschnitt;
+	item.pages = abschnitt;
+
 
 
 	// Bearbeiter ermitteln
-	// TODO: zu Zotero übernehmen, Mglk mehrerer Bearbeiter beachten
 	bearbeiter = text(doc, ".autor");
 
 	if (bearbeiter) {
@@ -215,6 +236,8 @@ async function scrapeCommentary(doc, url) {
 		z3 = matches[3];
 	};
 
+/*
+
 	// Kurztitel aus Zitiervorschlag ermitteln
 	// TODO: Daten übernehmen, wenn kein Zitiervorschlag vorhanden
 	let regexKurztitel = new RegExp(`(.+)\/${bearbeiter}`);
@@ -223,6 +246,8 @@ async function scrapeCommentary(doc, url) {
 		kurztitel = matches[1];
 		item.shortTitle = kurztitel;
 	};
+
+*/
 
 	// Auflage und Datum aus Zitiervorschlag ermitteln
 	if(kurztitel.includes("BeckOGK")) {
@@ -240,13 +265,24 @@ async function scrapeCommentary(doc, url) {
 		};
 	};
 
+	/*
+
 	// Abschnitt aus Zitiervorschlag ermitteln
 	let regexAbschnitt = /(.*?)(?: Rn\. .+)?$/;
 	matches = z3.match(regexAbschnitt);
 	if (matches) {
 		abschnitt = matches[1];
+		abschnitt = abschnitt.replace(/Art\. /g, "Art\.\u00A0");
+		abschnitt = abschnitt.replace(/§ /g, "§\u00A0");
 		item.pages = abschnitt;
 	};
+
+*/
+
+
+
+
+
 
 	// Titel für Ansicht in Zotero generieren
 	if (altauflage) {
@@ -255,8 +291,76 @@ async function scrapeCommentary(doc, url) {
 		item.title = kurztitel + " " + abschnitt;
 	};
 
+
+
+
+
+
+
+
+	// Zitierinfo scrapen (##todo: Auswertung der Daten)
+	let zitierinfo = doc.querySelectorAll(".citation")[0].innerHTML;
+
+	// nur zu Testzwecken aktivieren
+	//item.notes.push({note: zitierinfo});
+
+	// BeckOGK
+	if (zitierinfo.includes("beck-online.GROSSKOMMENTAR")) {
+		let regexHrsg = />Hrsg: (\S+)</;
+		matches = zitierinfo.match(regexHrsg);
+		if (matches) {
+			let hrsg = matches[1];
+			let hrsgs = hrsg.split("/");
+			for (let i = 0; i < hrsgs.length; i++) {
+				item.creators.push(ZU.cleanAuthor(hrsgs[i], "editor", false));
+			};
+		};
+		extras += "submitted: " + datum.toString() + "\n";
+	};
+
+	// BeckOK
+	if (zitierinfo.includes("BeckOK")) {
+		let regexHrsg = /, (.+?)<br>/;
+		matches = zitierinfo.match(regexHrsg);
+		if (matches) {
+			let hrsg = matches[1];
+			let hrsgs = hrsg.split("/");
+			for (let i = 0; i < hrsgs.length; i++) {
+				item.creators.push(ZU.cleanAuthor(hrsgs[i], "editor", false));
+			};
+		};
+		extras += "submitted: " + datum.toString() + "\n";
+	};
+
+	// Sonstige
+	let regexSonstige = /(.+?), (.+?)<br>/;
+	matches = zitierinfo.match(regexSonstige);
+	if (matches) {
+		let hrsg = matches[1];
+		let hrsgs = hrsg.split("/");
+		for (let i = 0; i < hrsgs.length; i++) {
+			item.creators.push(ZU.cleanAuthor(hrsgs[i], "editor", false));
+		};
+		kommentartitel = matches[2];
+	};
+
+	// ##todo: Kommentare mit Sachentitel (?), jedenfalls aber MüKo hat keine Hrsg.-Angabe hier und deshalb kein Komma und ist somit noch nicht erfasst
+
+	// Auflage + Datum, sofern kein Zitiervorschlag vorhanden
+	if (auflage == "##") {
+		let regexAltAuflage = /(\d+)\. Auflage (\d\d\d\d)/;
+		matches = zitierinfo. match(regexAltAuflage);
+		if (matches) {
+			item.edition = matches[1];
+			item.date = matches[2];
+		};
+	};
+
+
 	// ## todo - wip: Langtitel, damit man das beim Zitieren besser findet
-	kommentartitel = ZU.xpathText(doc, '//*[@id="toccontent"]/ul/li/a[2]');
+	if (kommentartitel == "##") {
+		kommentartitel = ZU.xpathText(doc, '//*[@id="toccontent"]/ul/li/a[2]');
+	};
 
 	// Enzyklopädietitel für das Tracking über CSL-M generieren
 	// Das Jahr wird hinzugefügt, damit Altauflagen im LitV separat auftauchen
@@ -268,24 +372,6 @@ async function scrapeCommentary(doc, url) {
 	};
 
 
-
-	// Zitierinfo scrapen (##todo: Auswertung der Daten)
-	let zitierinfo = doc.querySelectorAll(".citation")[0].innerHTML;
-
-	// nur zu Testzwecken aktivieren
-	//item.notes.push({note: zitierinfo});
-
-	// BeckOGK
-	let regexHrsg = />Hrsg: (\S+)</;
-	matches = zitierinfo.match(regexHrsg);
-	if (matches) {
-		let hrsg = matches[1];
-		let hrsgs = hrsg.split("/");
-		for (let i = 0; i < hrsgs.length; i++) {
-			item.creators.push(ZU.cleanAuthor(hrsgs[i], "editor", false));
-		};
-	};
-	
 
 
 
@@ -302,6 +388,9 @@ async function scrapeCommentary(doc, url) {
 	// TODO: Online-Kommentar als solchen abspeichern
 	// TODO: Loseblattsammlung als solche abspeichern (zB Dürig GG)
 
+
+	// Finalize item
+	item.extra = extras;
 
 	// Item abspeichern
 	item.complete();

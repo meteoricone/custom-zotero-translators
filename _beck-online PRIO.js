@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-10-19 15:10:45"
+	"lastUpdated": "2025-10-19 16:29:46"
 }
 
 /*
@@ -304,46 +304,67 @@ async function scrapeCommentary(doc, url) {
 	// nur zu Testzwecken aktivieren
 	//item.notes.push({note: zitierinfo});
 
-	// BeckOGK
-	if (zitierinfo.includes("beck-online.GROSSKOMMENTAR")) {
+
+	if (zitierinfo.includes("beck-online.GROSSKOMMENTAR")) {			// BeckOGK
 		let regexHrsg = />Hrsg: (\S+)</;
 		matches = zitierinfo.match(regexHrsg);
 		if (matches) {
 			let hrsg = matches[1];
+			let etAl = false;
+			if (hrsg.includes(" u.a.")) {
+				etAl = true;
+				hrsg = hrsg.replace(" u.a.", "");
+			};
 			let hrsgs = hrsg.split("/");
 			for (let i = 0; i < hrsgs.length; i++) {
 				item.creators.push(ZU.cleanAuthor(hrsgs[i], "editor", false));
 			};
+			if (etAl) {
+				item.creators.push(ZU.cleanAuthor("##u.a.##", "editor", false));
+			};
 		};
 		extras += "submitted: " + datum.toString() + "\n";
-	};
 
-	// BeckOK
-	if (zitierinfo.includes("BeckOK")) {
+	} else if (zitierinfo.includes("BeckOK")) {				// BeckOK
 		let regexHrsg = /, (.+?)<br>/;
 		matches = zitierinfo.match(regexHrsg);
 		if (matches) {
 			let hrsg = matches[1];
+			let etAl = false;
+			if (hrsg.includes(" u.a.")) {
+				etAl = true;
+				hrsg = hrsg.replace(" u.a.", "");
+			};
 			let hrsgs = hrsg.split("/");
 			for (let i = 0; i < hrsgs.length; i++) {
 				item.creators.push(ZU.cleanAuthor(hrsgs[i], "editor", false));
 			};
+			if (etAl) {
+				item.creators.push(ZU.cleanAuthor("##u.a.##", "editor", false));
+			};
 		};
 		extras += "submitted: " + datum.toString() + "\n";
-	};
+	} else {																		// Sonstige
 
-	// Sonstige
-	let regexSonstige = /(.+?), (.+?)<br>/;
-	matches = zitierinfo.match(regexSonstige);
-	if (matches) {
-		let hrsg = matches[1];
-		let hrsgs = hrsg.split("/");
-		for (let i = 0; i < hrsgs.length; i++) {
-			item.creators.push(ZU.cleanAuthor(hrsgs[i], "editor", false));
+		let regexSonstige = /(.+?), (.+?)<br>/;
+		matches = zitierinfo.match(regexSonstige);
+		if (matches) {
+			let hrsg = matches[1];
+			let etAl = false;
+			if (hrsg.includes(" u.a.")) {
+				etAl = true;
+				hrsg = hrsg.replace(" u.a.", "");
+			};
+			let hrsgs = hrsg.split("/");
+			for (let i = 0; i < hrsgs.length; i++) {
+				item.creators.push(ZU.cleanAuthor(hrsgs[i], "editor", false));
+			};
+			if (etAl) {
+				item.creators.push(ZU.cleanAuthor("##u.a.##", "editor", false));
+			};
+			kommentartitel = matches[2];
 		};
-		kommentartitel = matches[2];
 	};
-
 	// ##todo: Kommentare mit Sachentitel (?), jedenfalls aber MüKo hat keine Hrsg.-Angabe hier und deshalb kein Komma und ist somit noch nicht erfasst
 
 	// Auflage + Datum, sofern kein Zitiervorschlag vorhanden

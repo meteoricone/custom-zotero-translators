@@ -1,6 +1,6 @@
 {
 	"translatorID": "3870bf64-286f-40e9-b819-eba84228d672",
-	"label": "_Pace IICL v2024-10-30",
+	"label": "_Pace IICL v2026-01-25",
 	"creator": "",
 	"target": "^https:\\/\\/iicl\\.law\\.pace\\.edu\\/cisg\\/case\\/",
 	"minVersion": "5.0",
@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-10-30 08:56:38"
+	"lastUpdated": "2026-01-25 13:41:47"
 }
 
 /*
@@ -71,7 +71,7 @@ async function doWeb(doc, url) {
 	if (institution){
 		newItem.court = institution;
 		extras += "jurisdiction: arb.cls\n";
-		extras += "genre: Abitral Decision\n";
+		extras += "genre: Arbitral Decision\n";
 		extras += "event-place: Unknown Seat of Arbitration\n";
 	};
 
